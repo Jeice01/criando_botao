@@ -1,0 +1,795 @@
+<!doctype html>
+<html ng-app="ui.bootstrap.demo">
+
+<head>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+    <script src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.js"></script>
+
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body>
+
+    <style>
+
+    </style>
+    <div ng-controller="AppCTRL">
+
+        <div id="conteudoModalVizualizarAula">
+            <div class="wrapper_info_aula" id="conteudoFormulario">
+                <div class="info_aula_content">
+                    <div style="width: 60%;">
+                        <h3>{{tb_quests.title}}</h3>
+                    </div>
+                </div>
+
+                <div class="info_aula_content">
+                    <div>
+                        <label>Disciplina:</label>
+                        {{tb_quests.rel_materia.nome}}
+                    </div>
+                    <div>
+                        <label>Ano escolar</label>
+                        {{tb_quests.rel_anoescolar.nome}}
+                    </div>
+
+                </div>
+
+                <div class="info_aula_content">
+                    <div style="width: 100%;">
+                        <div style="text-align: center; padding-bottom: 6px;">
+                            <label>Habilidades BNCC</label>
+                        </div>
+                        <div ng-show="tb_quests && tb_quests.relx_habilidadesbncc && tb_quests.relx_habilidadesbncc.length > 0"
+                            style="background-color: rgba(0,255,255, 0.2); border: 1px solid rgb(0,255,255); border-radius: 7px; padding: 15px;">
+                            <div ng-repeat="bncc in tb_quests.relx_habilidadesbncc"
+                                style="width: 100%; font-weight: bolder;">
+                                &nbsp;
+                                {{bncc.rel_bncc.descricao}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info_aula_content">
+                    <div>
+                        <label>Descrição da aula</label>
+                        <p>{{tb_quests.description}}</p>
+                    </div>
+                    <div>
+                        <label>Observações (espaço da Escola)</label>
+                        <p>{{tb_quests.comentarios}}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wrapper_info_etapa" id="infoStepsOfQuest">
+                <div class="gri-steps">
+                    <div class="info_aula_content" ng-repeat="etapa in tb_quests.quest_steps | orderBy: 'sequencia' "
+                        ng-init="indexStep = $index">
+                        <div style="text-align: center; width: 100%;">
+                            <div style="display: grid; grid-template-columns: 1fr 100px;">
+                                <div style="text-align: center; width: 100%; padding-left: 100px;">
+                                    <h3 style="font-weight: bold;">
+                                        {{etapa.sequencia ? etapa.sequencia : 0 }}° - {{etapa.apelido}}
+                                    </h3>
+                                </div>
+                            </div>
+                            <p>
+                                {{etapa.comentarios}}
+                            </p>
+                        </div>
+                        <div style="width: 100%;">
+                            <div style="display: grid; grid-template-columns: 1fr; column-gap: 10px; width: 100%;">
+                                <span
+                                    style="text-align: center; width: 100%; font-size: 15px; margin-bottom: 20px;"><strong>Personagem:</strong>
+                                    {{etapa.rel_npc.nome}}</span>
+                            </div>
+                            <div class="gridNPCFotoGeral" ng-class="getNPCFotoClass(etapa);" ng-if="etapa.rel_npc">
+                                <div style="text-align: center !important;" ng-if="etapa.rel_npc.foto_1">
+                                    <img src="{{etapa.rel_npc.foto_1||'/cit-esi-web/images/npcs/outros/npc_desconhecido.png' }}"
+                                        width="90" height="90" />
+                                </div>
+                                <div style="text-align: center !important;" ng-if="etapa.rel_npc.foto_2">
+                                    <img src="{{etapa.rel_npc.foto_2 || '/cit-esi-web/images/npcs/outros/npc_desconhecido.png' }}"
+                                        width="90" height="90" />
+                                </div>
+                                <div style="text-align: center !important;" ng-if="etapa.rel_npc.foto_localicacao">
+                                    <img src="{{etapa.rel_npc.foto_localicacao || '/cit-esi-web/images/npcs/outros/npc_desconhecido.png'}}"
+                                        width="90" height="90" />
+                                </div>
+                            </div>
+                        </div>
+                        <div style="width: 100%; overflow-y: auto;">
+                            <div class="card" ng-repeat="contentEditing in etapa.n_contents | orderBy : 'sequencia' "
+                                ng-init="indexContent = $index">
+                                <div class="card-body">
+                                    <h5 class="card-title"> {{contentEditing.sequencia}} -
+                                        {{contentEditing.label_tipo_conteudo}}</h5>
+                                    <div>
+                                        <span ng-if=" (contentEditing.content_type == 0)"
+                                            ng-bind-html="contentEditing.description"></span>
+                                        <span ng-if="!(contentEditing.content_type == 0)"
+                                            ng-bind-html="contentEditing.title"></span>
+                                    </div>
+                                    <div>
+                                        <div class="wrapper_info_aula" id="infoContentOfStep">
+
+                                            <div class="info_aula_content">
+                                                <div style="width: 30%;">
+                                                    <label>Atividade</label>
+                                                    <span>Tipo: {{contentEditing.content_type}}</span>
+                                                </div>
+                                                <div style="width: 20%;">
+                                                    <label>Sequência</label>
+                                                    <span>{{contentEditing.sequencia}}</span>
+                                                </div>
+
+                                                <div ng-show="contentEditing.content_type == 0">
+                                                    <label>Tipo de questão</label>
+                                                    <span>{{contentEditing.question_type}}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="info_aula_content">
+                                                <div class="lwc-content">
+                                                    <div class="row">
+                                                        <!-- {{contentEditing.content_type}} -->
+                                                        <div class="col-md-6">
+                                                            <div ng-show="contentEditing.content_type != 0"
+                                                                class="form-group">
+                                                                <label>Título</label>
+                                                                <h3>{{contentEditing.title}}</h3>
+                                                                <h3>{{contentEditing.descricao}}</h3>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="lwc-content">
+                                                        <div class="row">
+                                                            <div class="col-md-3">
+                                                                <div class="lwc-form-group"
+                                                                    ng-show="contentEditing.content_type == 2 && contentEditing.rl_video_interno">
+                                                                    <div>
+                                                                        <a href="{{contentEditing.rl_video_interno.url_relativa}}"
+                                                                            target="_blank">Download
+                                                                            {{contentEditing.rl_video_interno.url_relativa}}</a>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div ng-show="(contentEditing.content_type == 1 || contentEditing.content_type == 0)"
+                                                    style="width: calc(50% - 30px); display: grid; grid-template-columns: 1fr; column-gap: 15px; row-gap: 15px;">
+                                                    <div>
+                                                        <label>Imagem do Conteúdo</label>
+                                                        <pre></pre>
+                                                    </div>
+                                                    <div style="text-align: center !important;"
+                                                        ng-show="contentEditing.image_url !== undefined">
+                                                        <i class="fas fa-eye showImgIcon" title="Mostrar imagem"
+                                                            ng-if="!contentEditing.show && contentEditing.image_url"
+                                                            ng-click="contentEditing.show = true"></i>
+                                                        <img ng-src="{{contentEditing.image_url}}"
+                                                            ng-if="contentEditing.show && contentEditing.image_url && contentEditing.image_url != '' "
+                                                            style="max-width: 100px !important;">
+
+                                                    </div>
+                                                </div>
+                                                <div ng-show="contentEditing.content_type == 0">
+                                                    <label>Misturar Respostas</label><br>
+                                                    <span>{{contentEditing.shuffle_answers?"SIM":"NÃO"}}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="info_aula_content">
+                                                <label>Descrição da Atividade</label>
+                                                <span>{{contentEditing.description}}</span>
+                                            </div>
+                                            <div ng-show="contentEditing.content_type == 2" class="col-md-3">
+                                                <p>{{contentEditing.video_url_full}}</p>
+                                            </div>
+                                            <div class="info_aula_content">
+                                                <div>
+                                                    <label>Comentários (espaço do Prof. Regente)</label>
+                                                    <span>{{contentEditing.comentarios}}</span>
+                                                </div>
+                                            </div>
+
+                                            <div class="info_aula_content">
+                                                <div ng-show="contentEditing.question_type == 0" style="width: 100%;">
+                                                    <div class="col-md-12">
+                                                        <h5>Questão do Tipo 0 (Escolha Única) </h5>
+                                                    </div>
+                                                    <div class="table_scroll">
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">#</th>
+                                                                    <th scope="col">Imagem</th>
+                                                                    <th scope="col">Opção de resposta</th>
+                                                                    <th scope="col">Resposta correta ?</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr ng-repeat="item in contentEditing.relx_answers">
+                                                                    <th scope="row">{{$index+1}}</th>
+                                                                    <td style="text-align: center !important;">
+                                                                        <i class="fas fa-eye showImgIcon"
+                                                                            title="Mostrar imagem"
+                                                                            ng-if="!item.show && item.image_url"
+                                                                            ng-click="item.show = true"></i>
+                                                                        <img src="{{ item.image_url }}"
+                                                                            ng-if="item.image_url && item.image_url && item.show"
+                                                                            style="max-width: 100px;" />
+                                                                    </td>
+                                                                    <td> {{ (item.titulo) }}</td>
+                                                                    <td> {{ (item.resposta_correta) ? 'Verdadeira' :
+                                                                        'Falsa' }}</td>
+
+                                                                </tr>
+                                                            </tbody>
+
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+                                                <div ng-show="contentEditing.question_type == 1" style="width: 100%;">
+                                                    <div class="col-md-12">
+                                                        <h5> Questão do Tipo 1 (Verdadeiro/Falso) </h5>
+                                                    </div>
+                                                    <div class="table_scroll">
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">#</th>
+                                                                    <th scope="col">Imagem</th>
+                                                                    <th scope="col">Escolha</th>
+                                                                    <th scope="col">Resposta</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr ng-repeat="item in contentEditing.relx_answers">
+                                                                    <th scope="row">{{$index+1}}</th>
+                                                                    <td style="text-align: center !important;">
+                                                                        <i class="fas fa-eye showImgIcon"
+                                                                            title="Mostrar imagem"
+                                                                            ng-if="!item.showImg && item.image_url"
+                                                                            ng-click="item.showImg = true"></i>
+                                                                        <img src="{{ item.image_url }}"
+                                                                            ng-if="item.image_url && item.showImg"
+                                                                            style="max-width: 100px;" />
+                                                                    </td>
+                                                                    <td> {{ item.titulo }}</td>
+                                                                    <td> {{ item.resposta_correta ? 'Verdadeira' :
+                                                                        'Falsa' }}</td>
+
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div ng-show="contentEditing.question_type == 2" style="width: 100%;">
+                                                    <div class="col-md-12">
+                                                        <h5> Questão do Tipo 2 (Múltipla Escolha) </h5>
+                                                    </div>
+                                                    <div class="table_scroll">
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">#</th>
+                                                                    <th scope="col">Imagem</th>
+                                                                    <th scope="col">Escolha</th>
+                                                                    <th scope="col">Resposta</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr ng-repeat="item in contentEditing.relx_answers">
+                                                                    <th scope="row">{{$index+1}}</th>
+                                                                    <td style="text-align: center !important;">
+                                                                        <i class="fas fa-eye showImgIcon"
+                                                                            title="Mostrar imagem"
+                                                                            ng-if="!item.show && item.image_url"
+                                                                            ng-click="item.show = true"></i>
+                                                                        <img src="{{ item.image_url }}"
+                                                                            ng-if="item.image_url && item.show"
+                                                                            style="max-width: 100px;" />
+                                                                    </td>
+                                                                    <td> {{ item.titulo }}</td>
+                                                                    <td> {{ item.resposta_correta ? 'Verdadeira' :
+                                                                        'Falsa' }}</td>
+
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                                <div ng-show="contentEditing.question_type == 3" style="width: 100%;">
+                                                    <div class="col-md-12">
+                                                        <h5> Questão do Tipo 3 (Preencher Lacunas) </h5>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <label>Frase</label> <span
+                                                            class="btn glyphicon glyphicon-plus-sign green"
+                                                            title="Adicionar lacuna"
+                                                            ng-click="appendLacunaIn( contentEditing.relx_answers[0] )"></span><br>
+                                                        <span>Atençao na ordem das lacunas</span><br>
+                                                        <textarea class="form-control info_aula_input" disabled
+                                                            ng-model="contentEditing.relx_answers[0].titulo"></textarea>
+                                                        <table>
+                                                            <tr
+                                                                ng-repeat="lacuna in contentEditing.relx_answers[0].json_lacunas track by $index">
+                                                                <td>{{lacuna.indice}}ª lacuna</td>
+                                                                <td>
+                                                                    <input type="text"
+                                                                        class="form-control info_aula_input"
+                                                                        ng-model="lacuna.resposta">
+                                                                </td>
+                                                                <td>
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+
+                                                </div>
+
+                                                <div ng-show="contentEditing.question_type == 4"
+                                                    style="width: 100% !important;">
+                                                    <div class="col-md-12">
+                                                        <h5>{{'Questão do Tipo 4 (Correspondente)' }}</h5>
+                                                    </div>
+                                                    <div class="table_scroll">
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">#</th>
+                                                                    <th scope="col">Texto</th>
+                                                                    <th scope="col">Texto Correspondente</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+
+                                                                <tr ng-repeat="item in contentEditing.relx_answers">
+                                                                    <th scope="row">{{$index+1}}</th>
+                                                                    <td> {{ (item.titulo) }}</td>
+                                                                    <td> {{ (item.titulo_match) }}</td>
+
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+
+                                                    </div>
+                                                </div>
+
+                                                <div ng-show="contentEditing.question_type == 5" style="width: 100%;">
+                                                    <div class="col-md-12">
+                                                        <h5>Questão do Tipo 5 (Imagens Correspondentes)</h5>
+                                                    </div>
+                                                    <div class="table_scroll">
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">#</th>
+                                                                    <th scope="col">Imagem</th>
+                                                                    <th scope="col">Imagem Correspondente</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+
+                                                                <tr ng-repeat="item in contentEditing.relx_answers">
+                                                                    <th scope="row">{{$index+1}}</th>
+                                                                    <td style="text-align: center !important;">
+                                                                        <i class="fas fa-eye showImgIcon"
+                                                                            title="Mostrar imagem"
+                                                                            ng-if="!item.showImg && item.image_url"
+                                                                            ng-click="item.showImg = true"></i>
+                                                                        <img src="{{ item.image_url }}"
+                                                                            ng-if="item.image_url && item.showImg"
+                                                                            style="max-width: 100px;" />
+                                                                    </td>
+                                                                    <td style="text-align: center !important;">
+                                                                        <i class="fas fa-eye showImgIcon"
+                                                                            title="Mostrar imagem"
+                                                                            ng-if="!item.showImgMatch && item.image_url_match"
+                                                                            ng-click="item.showImgMatch = true"></i>
+                                                                        <img src="{{ item.image_url_match}}"
+                                                                            ng-if="item.image_url_match && item.showImgMatch"
+                                                                            style="max-width: 100px;" />
+                                                                    </td>
+
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+                                                <div ng-show="contentEditing.question_type == 6" style="width: 100%;">
+                                                    <div class="col-md-12">
+                                                        <h5>Questão do Tipo 6 (Ordenação)</h5>
+                                                    </div>
+                                                    <div class="table_scroll">
+
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">#</th>
+                                                                    <th scope="col">Alternativa</th>
+                                                                    <th scope="col">Ordem</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+
+                                                                <tr ng-repeat="item in contentEditing.relx_answers ">
+                                                                    <th scope="row">{{$index+1}}</th>
+                                                                    <td> {{ (item.titulo) }}</td>
+                                                                    <td> {{ (item.correct_order) }}</td>
+
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+
+                                                <div ng-show="contentEditing.question_type == 7" style="width: 100%;">
+                                                    <div style="width: 100%;">
+                                                        <label>Texto da questão</label>
+                                                        <textarea ng-model="contentEditing.relx_answers[0].titulo"
+                                                            disabled class="form-control info_aula_input"
+                                                            rows="8"></textarea>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+        </div>
+
+    </div>
+
+    <script>
+        angular.module('ui.bootstrap.demo', ['ngAnimate', 'ngSanitize', 'ui.bootstrap']);
+        angular.module('ui.bootstrap.demo').controller('AppCTRL', function ($scope) {
+            $scope.tb_quests = {
+                "ativo": "S",
+                "rel_revisor": {
+                    "nome": "alan cabral",
+                    "login": "4biz.local\\alan.cabral",
+                    "idusuario": 115,
+                    "idempresa": 1,
+                    "ldap": "N",
+                    "ididioma": 2,
+                    "idempregado": 129,
+                    "guest": "N",
+                    "status": "A"
+                },
+                "subject": "4",
+                "description": "OLÁ, ESTUDANTE! HOJE IREMOS REVISAR O CONTÉUDO \"A COMUNIDADE\".\nVAMOS NESSA?\nBONS ESTUDOS!",
+                "dt_adicionado": "2023-05-24T14:21:27.000Z",
+                "title": "A comunidade",
+                "bimestre": 5,
+                "id_adicionado_por": 39,
+                "rel_anoescolar": {
+                    "dt_alterado_str": "2022-06-06T17:40:17.000Z",
+                    "bncc": "EF",
+                    "ativo": 1,
+                    "id_unico": "eed6a7ac-bad1-4b1a-bd9f-865a643899ca",
+                    "id_adicionado_por": 1,
+                    "nome": "2º Ano",
+                    "id": 2,
+                    "dt_adicionado": "2022-03-03T23:48:33.000Z",
+                    "dt_adicionado_str": "2022-03-03T23:48:33.000Z",
+                    "dt_alterado": "2022-06-06T17:40:17.000Z",
+                    "descricao": "Anos Iniciais"
+                },
+                "id": 3418,
+                "dt_revisao": "2023-08-22T02:22:12.000Z",
+                "dt_revisao_str": "2023-08-22T02:22:12.000Z",
+                "rel_materia": {
+                    "dt_alterado_str": "2022-08-25T21:34:26.000Z",
+                    "ativo": 1,
+                    "nome": "História",
+                    "dt_adicionado": "2022-03-03T23:48:33.000Z",
+                    "dt_alterado": "2022-08-25T21:34:26.000Z",
+                    "descricao": "Ensino Fundamental e Ensino médio",
+                    "id_unico": "fe2fba71-4eae-46b5-8cd2-2cc8a83c518c",
+                    "id_adicionado_por": 1,
+                    "id": 4,
+                    "dt_adicionado_str": "2022-03-03T23:48:33.000Z"
+                },
+                "id_revisado_por": 115,
+                "quest_steps": [
+                    {
+                        "dt_alterado_str": "2023-08-22T01:57:59.000Z",
+                        "ativo": "S",
+                        "sequencia": 1,
+                        "apelido": "A COMUNIDADE",
+                        "rel_npc": {
+                            "rel_materia": {
+                                "dt_alterado_str": "2022-08-25T21:34:26.000Z",
+                                "ativo": 1,
+                                "nome": "História",
+                                "dt_adicionado": "2022-03-03T23:48:33.000Z",
+                                "dt_alterado": "2022-08-25T21:34:26.000Z",
+                                "descricao": "Ensino Fundamental e Ensino médio",
+                                "id_unico": "fe2fba71-4eae-46b5-8cd2-2cc8a83c518c",
+                                "id_adicionado_por": 1,
+                                "id": 4,
+                                "dt_adicionado_str": "2022-03-03T23:48:33.000Z"
+                            },
+                            "dt_alterado_str": "2022-09-05T15:23:43.000Z",
+                            "ativo": "S",
+                            "id_ue": 1,
+                            "nome": "Personagem 1 História",
+                            "dt_adicionado": "2022-09-02T22:28:11.000Z",
+                            "idmateria": 4,
+                            "dt_alterado": "2022-09-05T15:23:43.000Z",
+                            "id": 53,
+                            "dt_adicionado_str": "2022-09-02T22:28:11.000Z"
+                        },
+                        "id_npc": 53,
+                        "id_quest": 3418,
+                        "n_contents": [
+                            {
+                                "ativo": "S",
+                                "relx_answers": [],
+                                "description": "ASSISTA AO VÍDEO COM ATENÇÃO!",
+                                "dt_adicionado": "2023-05-24T14:28:36.000Z",
+                                "title": "A COMUNIDADE",
+                                "video_url": "VciAYPLTgIg",
+                                "content_type": 2,
+                                "id_adicionado_por": 39,
+                                "video_url_full": "https://www.youtube.com/watch?v=VciAYPLTgIg",
+                                "id": 16648,
+                                "sequencia": 1,
+                                "id_step": 11005,
+                                "dt_adicionado_str": "2023-05-24T14:28:36.000Z"
+                            }
+                        ],
+                        "dt_adicionado": "2023-08-22T01:57:59.000Z",
+                        "dt_alterado": "2023-08-22T01:57:59.000Z",
+                        "id": 11005,
+                        "dt_adicionado_str": "2023-08-22T01:57:59.000Z"
+                    },
+                    {
+                        "dt_alterado_str": "2023-08-22T01:57:59.000Z",
+                        "ativo": "S",
+                        "sequencia": 2,
+                        "apelido": "ATIVIDADE 1",
+                        "rel_npc": {
+                            "rel_materia": {
+                                "dt_alterado_str": "2022-08-25T21:34:26.000Z",
+                                "ativo": 1,
+                                "nome": "História",
+                                "dt_adicionado": "2022-03-03T23:48:33.000Z",
+                                "dt_alterado": "2022-08-25T21:34:26.000Z",
+                                "descricao": "Ensino Fundamental e Ensino médio",
+                                "id_unico": "fe2fba71-4eae-46b5-8cd2-2cc8a83c518c",
+                                "id_adicionado_por": 1,
+                                "id": 4,
+                                "dt_adicionado_str": "2022-03-03T23:48:33.000Z"
+                            },
+                            "dt_alterado_str": "2022-09-05T15:23:37.000Z",
+                            "ativo": "S",
+                            "id_ue": 2,
+                            "nome": "Personagem 2 História",
+                            "dt_adicionado": "2022-09-02T22:28:21.000Z",
+                            "idmateria": 4,
+                            "dt_alterado": "2022-09-05T15:23:37.000Z",
+                            "id": 54,
+                            "dt_adicionado_str": "2022-09-02T22:28:21.000Z"
+                        },
+                        "id_npc": 54,
+                        "id_quest": 3418,
+                        "n_contents": [
+                            {
+                                "ativo": "S",
+                                "relx_answers": [
+                                    {
+                                        "dt_alterado_str": "2023-05-24T14:40:19.000Z",
+                                        "ativo": "S",
+                                        "titulo": "CLUBE",
+                                        "dt_adicionado": "2023-05-24T14:40:19.000Z",
+                                        "dt_alterado": "2023-05-24T14:40:19.000Z",
+                                        "id_content": 16649,
+                                        "resposta_correta": false,
+                                        "id": 41727,
+                                        "dt_adicionado_str": "2023-05-24T14:40:19.000Z"
+                                    },
+                                    {
+                                        "dt_alterado_str": "2023-05-24T14:40:25.000Z",
+                                        "ativo": "S",
+                                        "titulo": "PARQUE",
+                                        "dt_adicionado": "2023-05-24T14:40:25.000Z",
+                                        "dt_alterado": "2023-05-24T14:40:25.000Z",
+                                        "id_content": 16649,
+                                        "resposta_correta": false,
+                                        "id": 41728,
+                                        "dt_adicionado_str": "2023-05-24T14:40:25.000Z"
+                                    },
+                                    {
+                                        "dt_alterado_str": "2023-05-24T14:40:34.000Z",
+                                        "ativo": "S",
+                                        "titulo": "IGREJA",
+                                        "dt_adicionado": "2023-05-24T14:40:34.000Z",
+                                        "dt_alterado": "2023-05-24T14:40:34.000Z",
+                                        "id_content": 16649,
+                                        "resposta_correta": false,
+                                        "id": 41729,
+                                        "dt_adicionado_str": "2023-05-24T14:40:34.000Z"
+                                    },
+                                    {
+                                        "dt_alterado_str": "2023-05-24T14:40:40.000Z",
+                                        "ativo": "S",
+                                        "titulo": "ESCOLA",
+                                        "dt_adicionado": "2023-05-24T14:40:40.000Z",
+                                        "dt_alterado": "2023-05-24T14:40:40.000Z",
+                                        "id_content": 16649,
+                                        "resposta_correta": true,
+                                        "id": 41730,
+                                        "dt_adicionado_str": "2023-05-24T14:40:40.000Z"
+                                    }
+                                ],
+                                "description": "COM A AJUDA DE UM FAMILIAR, RESPONDA:\nA IMAGEM REPRESENTA QUE TIPO DE ORGANIZAÇÃO DA COMUNIDADE?",
+                                "dt_adicionado": "2023-05-24T14:31:21.000Z",
+                                "shuffle_answers": "S",
+                                "content_type": 0,
+                                "id_adicionado_por": 39,
+                                "id": 16649,
+                                "sequencia": 1,
+                                "question_type": 0,
+                                "image_url": "https://admin-dev.odisseia.space/cit-esi-web/rest/esi/attachedFile/download?idAttachedFile=389209",
+                                "id_step": 11006,
+                                "dt_adicionado_str": "2023-05-24T14:31:21.000Z"
+                            }
+                        ],
+                        "dt_adicionado": "2023-08-22T01:57:59.000Z",
+                        "dt_alterado": "2023-08-22T01:57:59.000Z",
+                        "id": 11006,
+                        "dt_adicionado_str": "2023-08-22T01:57:59.000Z"
+                    },
+                    {
+                        "dt_alterado_str": "2023-08-22T01:57:59.000Z",
+                        "ativo": "S",
+                        "sequencia": 3,
+                        "apelido": "ATIVIDADE 2",
+                        "rel_npc": {
+                            "rel_materia": {
+                                "dt_alterado_str": "2022-08-25T21:34:26.000Z",
+                                "ativo": 1,
+                                "nome": "História",
+                                "dt_adicionado": "2022-03-03T23:48:33.000Z",
+                                "dt_alterado": "2022-08-25T21:34:26.000Z",
+                                "descricao": "Ensino Fundamental e Ensino médio",
+                                "id_unico": "fe2fba71-4eae-46b5-8cd2-2cc8a83c518c",
+                                "id_adicionado_por": 1,
+                                "id": 4,
+                                "dt_adicionado_str": "2022-03-03T23:48:33.000Z"
+                            },
+                            "dt_alterado_str": "2022-09-05T15:23:29.000Z",
+                            "ativo": "S",
+                            "id_ue": 3,
+                            "nome": "Personagem 3 História",
+                            "dt_adicionado": "2022-09-02T22:28:29.000Z",
+                            "idmateria": 4,
+                            "dt_alterado": "2022-09-05T15:23:29.000Z",
+                            "id": 55,
+                            "dt_adicionado_str": "2022-09-02T22:28:29.000Z"
+                        },
+                        "id_npc": 55,
+                        "id_quest": 3418,
+                        "n_contents": [
+                            {
+                                "ativo": "S",
+                                "relx_answers": [
+                                    {
+                                        "dt_alterado_str": "2023-05-24T14:47:34.000Z",
+                                        "ativo": "S",
+                                        "titulo": "GRUPOS DE PESSOAS.",
+                                        "dt_adicionado": "2023-05-24T14:47:34.000Z",
+                                        "dt_alterado": "2023-05-24T14:47:34.000Z",
+                                        "id_content": 16650,
+                                        "resposta_correta": true,
+                                        "id": 41731,
+                                        "dt_adicionado_str": "2023-05-24T14:47:34.000Z"
+                                    },
+                                    {
+                                        "dt_alterado_str": "2023-05-24T14:48:20.000Z",
+                                        "ativo": "S",
+                                        "titulo": "GRUPOS DE EMPRESAS.",
+                                        "dt_adicionado": "2023-05-24T14:48:20.000Z",
+                                        "dt_alterado": "2023-05-24T14:48:20.000Z",
+                                        "id_content": 16650,
+                                        "resposta_correta": false,
+                                        "id": 41732,
+                                        "dt_adicionado_str": "2023-05-24T14:48:20.000Z"
+                                    },
+                                    {
+                                        "dt_alterado_str": "2023-05-24T14:49:23.000Z",
+                                        "ativo": "S",
+                                        "titulo": "GRUPOS DE CIDADES.",
+                                        "dt_adicionado": "2023-05-24T14:49:23.000Z",
+                                        "dt_alterado": "2023-05-24T14:49:23.000Z",
+                                        "id_content": 16650,
+                                        "resposta_correta": false,
+                                        "id": 41733,
+                                        "dt_adicionado_str": "2023-05-24T14:49:23.000Z"
+                                    }
+                                ],
+                                "description": "COM A AJUDA DE UM FAMILIAR, RESPONDA:\nA COMUNIDADE É FORMADA POR:",
+                                "dt_adicionado": "2023-05-24T14:43:32.000Z",
+                                "shuffle_answers": "S",
+                                "content_type": 0,
+                                "id_adicionado_por": 39,
+                                "id": 16650,
+                                "sequencia": 1,
+                                "question_type": 0,
+                                "id_step": 11007,
+                                "dt_adicionado_str": "2023-05-24T14:43:32.000Z"
+                            }
+                        ],
+                        "dt_adicionado": "2023-08-22T01:57:59.000Z",
+                        "dt_alterado": "2023-08-22T01:57:59.000Z",
+                        "id": 11007,
+                        "dt_adicionado_str": "2023-08-22T01:57:59.000Z"
+                    }
+                ],
+                "difficulty": 0,
+                "relx_habilidadesbncc": [
+                    {
+                        "idquest": 3418,
+                        "id": 3675,
+                        "idbncc": 3424,
+                        "rel_bncc": {
+                            "ativo": "S",
+                            "id": 3424,
+                            "descricao": "(EF02HI01) Reconhecer espaços de sociabilidade e identificar os motivos que aproximam e separam as pessoas em diferentes grupos sociais ou de parentesco."
+                        }
+                    },
+                    {
+                        "idquest": 3418,
+                        "id": 3676,
+                        "idbncc": 3425,
+                        "rel_bncc": {
+                            "ativo": "S",
+                            "id": 3425,
+                            "descricao": "(EF02HI02) Identificar e descrever práticas e papéis sociais que as pessoas exercem em diferentes comunidades."
+                        }
+                    }
+                ],
+                "id_ano_escolar": "2",
+                "istemplate": true,
+                "rel_criador": {
+                    "nome": "Jaqueline Nunes Leite",
+                    "login": "4biz.local\\jaquelinen",
+                    "idusuario": 39,
+                    "idempresa": 1,
+                    "ldap": "N",
+                    "ididioma": 2,
+                    "idempregado": 45,
+                    "guest": "N",
+                    "status": "A"
+                },
+                "dt_adicionado_str": "2023-05-24T14:21:27.000Z"
+            }
+
+
+        });
+    </script>
+</body>
+
+</html>
